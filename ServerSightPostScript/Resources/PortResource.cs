@@ -25,14 +25,19 @@ namespace ServerSightPostScript.Resources
 
             foreach (var tcpListener in tcpListenersFiltered)
             {
-                ports.Add(tcpListener.Port);
+                ports.Add(new PortServer(tcpListener.Port));
             }
             
             foreach (var udpListener in udpListeners)
             {
-                ports.Add(udpListener.Port);
+                ports.Add(new PortServer(udpListener.Port));
             }
             return ports;
+        }
+
+        public string GetRelativeEndpoint()
+        {
+            return "ports";
         }
     }
 }

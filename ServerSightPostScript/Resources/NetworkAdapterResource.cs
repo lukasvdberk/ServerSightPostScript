@@ -26,5 +26,10 @@ namespace ServerSightPostScript.Resources
 
             return networkAdapters.ToList();   
         }
+
+        public string GetRelativeEndpoint()
+        {
+            return "ips";
+        }
     }
 }

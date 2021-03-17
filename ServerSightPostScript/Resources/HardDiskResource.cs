@@ -14,14 +14,18 @@ namespace ServerSightPostScript.Resources
 
             foreach (DriveInfo d in allDrives)
             {
-                if (d.IsReady && d.VolumeLabel.Contains("Fixed"))
+                if (d.IsReady && d.DriveType == DriveType.Fixed)
                 {
                     harddisks.Add(new HardDisk(d.VolumeLabel, d.TotalFreeSpace, d.TotalSize));
-
                 }
             }
 
             return harddisks;
+        }
+
+        public string GetRelativeEndpoint()
+        {
+            return "hard-disks";
         }
     }
 }
