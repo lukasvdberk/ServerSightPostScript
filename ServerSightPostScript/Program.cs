@@ -14,27 +14,39 @@ namespace ServerSightPostScript
     class Program
     {
         // TODO id en api key to .env or json file
-        private static readonly string SERVER_ID = "49be29ac-9bb1-407c-9dc8-46a9185ffd3a";
-        private static readonly string API_KEY = "4aed43149e41452bb3aa";
+        private static readonly string SERVER_ID = Configuration.GetServerId();
+        private static readonly string API_KEY = Configuration.GetApiKey();
         
         static readonly string BASE_URL = "https://127.0.0.1:5001/api/";
+        
         static void Main(string[] args)
         {
             List<IResource> resources = new List<IResource>()
             {
+                new CpuResource(),
                 new HardDiskResource(),
                 new NetworkAdapterResource(),
-                new PortResource()
+                new PortResource(),
             };
 
-            foreach (var resource in resources)
+            if (string.IsNullOrWhiteSpace(SERVER_ID) || string.IsNullOrWhiteSpace(API_KEY))
             {
-                // TODO put in a job that does it every minute
-                PostResults(
-                        string.Concat("servers/", SERVER_ID, "/", resource.GetRelativeEndpoint()),
-                    resource.GetResource()
-                ).Wait();
-                Console.WriteLine("Done!");
+                Console.WriteLine("You either did not supply a SERVER_SIGHT_API_KEY or SERVER_SIGHT_SERVER_ID key in your environment");
+                return;
+            }
+
+            while (true)
+            {
+                foreach (var resource in resources)
+                {
+                    // Console.WriteLine(resource.GetResource());
+                    // TODO put in a job that does it every minute
+                    // PostResults(
+                    //         string.Concat("servers/", SERVER_ID, "/", resource.GetRelativeEndpoint()),
+                    //     resource.GetResource()
+                    // ).Wait();
+                    // Console.WriteLine("Done!");
+                }   
             }
         }
 
@@ -63,7 +75,7 @@ namespace ServerSightPostScript
             Console.WriteLine(await result.Content.ReadAsStringAsync());
             if (result.StatusCode != HttpStatusCode.NoContent)
             {
-                // throw new Exception("Data not saved");
+                throw new Exception("Data not saved");
             }
         }
     }
