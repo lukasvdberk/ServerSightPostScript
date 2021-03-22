@@ -34,19 +34,27 @@ namespace ServerSightPostScript
                 Console.WriteLine("You either did not supply a SERVER_SIGHT_API_KEY or SERVER_SIGHT_SERVER_ID key in your environment");
                 return;
             }
+            
+            var startTimeSpan = TimeSpan.Zero;
+            var periodTimeSpan = TimeSpan.FromMinutes(1);
 
-            while (true)
+            var timer = new System.Threading.Timer((e) =>
             {
+                Console.WriteLine(DateTime.Now);
                 foreach (var resource in resources)
                 {
-                    // Console.WriteLine(resource.GetResource());
+                    Console.WriteLine(resource.GetResource());
                     // TODO put in a job that does it every minute
                     // PostResults(
                     //         string.Concat("servers/", SERVER_ID, "/", resource.GetRelativeEndpoint()),
                     //     resource.GetResource()
                     // ).Wait();
                     // Console.WriteLine("Done!");
-                }   
+                }
+            }, null, GetStartTime(), 60000);
+            while (true) 
+            {
+                // to keep the program running
             }
         }
 
@@ -76,6 +84,12 @@ namespace ServerSightPostScript
             {
                 throw new Exception("Data not saved");
             }
+        }
+
+        private static int GetStartTime()
+        {
+            // so it starts exactly at the beginning of the minute
+            return (60 - DateTime.Now.Second) * 1000;
         }
     }
 }

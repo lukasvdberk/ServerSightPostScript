@@ -8,7 +8,7 @@ namespace ServerSightPostScript.Resources
 {
     public class NetworkAdapterResource: IResource
     {
-        public List<object> GetResource()
+        public object GetResource()
         {
             List<object> networkAdapters = new List<object>();
             foreach(NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())

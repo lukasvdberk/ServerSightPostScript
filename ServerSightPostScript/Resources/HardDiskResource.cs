@@ -7,7 +7,7 @@ namespace ServerSightPostScript.Resources
 {
     public class HardDiskResource : IResource
     {
-        public List<object> GetResource()
+        public object GetResource()
         {
             List<object> harddisks = new List<object>();
             DriveInfo[] allDrives = DriveInfo.GetDrives();

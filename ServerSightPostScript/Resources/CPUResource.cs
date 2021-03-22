@@ -13,35 +13,39 @@ namespace ServerSightPostScript.Resources
 {
     public class CpuResource: IResource
     {
+        private List<object> _pastMinuteCpuUsage = new List<object>();
         public CpuResource()
         {
             new Thread( () => 
             {
-                // Thread.CurrentThread.IsBackground = true;
-                try
+                var cpuInterval = new Timer(_ =>
                 {
-                    var timer1 = new Timer(_ =>
+                    try
                     {
                         var currentCpuUsage = GetCurrentCpuUsage();
-                        Thread.Sleep(1000);       
-                    }, null, 0, 1000);
-                }
-                catch (Exception ignored)
-                {
-                    Console.WriteLine(ignored.StackTrace);
-                    // just to catch exception and still let the program run
-                }
+                        _pastMinuteCpuUsage.Add(currentCpuUsage);
+                    }
+                    catch (Exception ignored)
+                    {
+                        Console.WriteLine(ignored.StackTrace);
+                    }
+                }, null, 0, 1000);
             }).Start();
         }
-        public List<object> GetResource()
+        
+        public object GetResource()
         {
-            return null;
+            var pastMinuteUsage = _pastMinuteCpuUsage;
+            
+            _pastMinuteCpuUsage.Clear();
+            return pastMinuteUsage ;
         }
 
         private double GetCurrentCpuUsage()
         {
             // TODO documente installment of mpstat sudo apt install sysstat
             // requires mpstat
+            // uses interval of 1 because else it will not fetch the right usage
             var escapedArgs = "mpstat -P ALL 1 1 -o JSON".Replace("\"", "\\\"");
             
             var process = new Process()

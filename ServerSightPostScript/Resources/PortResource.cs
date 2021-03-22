@@ -7,7 +7,7 @@ namespace ServerSightPostScript.Resources
 {
     public class PortResource: IResource
     {
-        public List<object> GetResource()
+        public object GetResource()
         {
             List<object> ports = new List<object>();
             
