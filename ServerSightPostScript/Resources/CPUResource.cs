@@ -20,12 +20,11 @@ namespace ServerSightPostScript.Resources
                 // Thread.CurrentThread.IsBackground = true;
                 try
                 {
-                    while (true)
+                    var timer1 = new Timer(_ =>
                     {
                         var currentCpuUsage = GetCurrentCpuUsage();
-                        Console.WriteLine(currentCpuUsage);
-                        Thread.Sleep(1000);
-                    }
+                        Thread.Sleep(1000);       
+                    }, null, 0, 1000);
                 }
                 catch (Exception ignored)
                 {
@@ -43,7 +42,7 @@ namespace ServerSightPostScript.Resources
         {
             // TODO documente installment of mpstat sudo apt install sysstat
             // requires mpstat
-            var escapedArgs = "mpstat -P ALL -o JSON".Replace("\"", "\\\"");
+            var escapedArgs = "mpstat -P ALL 1 1 -o JSON".Replace("\"", "\\\"");
             
             var process = new Process()
             {
@@ -68,11 +67,11 @@ namespace ServerSightPostScript.Resources
             {
                 foreach (var statistic in host.SelectToken("statistics").Value<JArray>().ToList())
                 {
-                    foreach (var cpuLoad in statistic.SelectToken("cpu-load").Value<JArray>().ToList())
-                    {
-                        Console.WriteLine(cpuLoad.SelectToken("usr").Value<double>());
-                        cpuUsages.Add(cpuLoad.SelectToken("usr").Value<double>());
-                    }
+                    // there is 1 cpu with the already calculated average.
+                    var cpuLoad = statistic.SelectToken("cpu-load").Value<JArray>().ToList()
+                        .First(q => q.SelectToken("cpu").Value<string>().Equals("all"));
+                    
+                    cpuUsages.Add(cpuLoad.SelectToken("usr").Value<double>());
                 }
             }
             return cpuUsages.Average();
