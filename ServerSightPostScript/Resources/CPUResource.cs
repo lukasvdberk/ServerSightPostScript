@@ -2,8 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 
 namespace ServerSightPostScript.Resources
 {
@@ -25,6 +29,7 @@ namespace ServerSightPostScript.Resources
                 }
                 catch (Exception ignored)
                 {
+                    Console.WriteLine(ignored.StackTrace);
                     // just to catch exception and still let the program run
                 }
             }).Start();
@@ -36,22 +41,40 @@ namespace ServerSightPostScript.Resources
 
         private double GetCurrentCpuUsage()
         {
-            List<double> cpuUsages = new List<double>();
-
-            var processorCount = Environment.ProcessorCount;
-            foreach (var process in Process.GetProcesses())
+            // TODO documente installment of mpstat sudo apt install sysstat
+            // requires mpstat
+            var escapedArgs = "mpstat -P ALL -o JSON".Replace("\"", "\\\"");
+            
+            var process = new Process()
             {
-                var startTime = DateTime.Now;
-                var startCpuUsage = process.TotalProcessorTime;
-                var endTime = DateTime.UtcNow;
-                var endCpuUsage = process.TotalProcessorTime;
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = "/bin/bash",
+                    Arguments = $"-c \"{escapedArgs}\"",
+                    RedirectStandardOutput = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                }
+            };
+            process.Start();
+            string result = process.StandardOutput.ReadToEnd();
+            process.WaitForExit();
+            var mpStatResultJObject = JObject.Parse(result);
+            // mpStatResultJObject.SelectToken("$.sysstat.hosts[0].statistics.cpu-load.usr");
+            var hosts = mpStatResultJObject.SelectToken("$.sysstat.hosts").Value<JArray>().ToList();
 
-                var cpuUsedMs = (endCpuUsage - startCpuUsage).TotalMilliseconds;
-                var totalMsPassed = (endTime - startTime).TotalMilliseconds;
-                var cpuUsageTotal = cpuUsedMs / (processorCount * totalMsPassed);
-                cpuUsages.Add(cpuUsageTotal * 100);
+            var cpuUsages = new List<double>();
+            foreach (var host in hosts)
+            {
+                foreach (var statistic in host.SelectToken("statistics").Value<JArray>().ToList())
+                {
+                    foreach (var cpuLoad in statistic.SelectToken("cpu-load").Value<JArray>().ToList())
+                    {
+                        Console.WriteLine(cpuLoad.SelectToken("usr").Value<double>());
+                        cpuUsages.Add(cpuLoad.SelectToken("usr").Value<double>());
+                    }
+                }
             }
-
             return cpuUsages.Average();
         }
         public string GetRelativeEndpoint()

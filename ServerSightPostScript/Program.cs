@@ -72,7 +72,6 @@ namespace ServerSightPostScript
                 )
             );
 
-            Console.WriteLine(await result.Content.ReadAsStringAsync());
             if (result.StatusCode != HttpStatusCode.NoContent)
             {
                 throw new Exception("Data not saved");
