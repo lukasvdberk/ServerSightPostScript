@@ -5,45 +5,52 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text.Json.Serialization;
-using System.Threading;
 using System.Threading.Tasks;
+using System.Timers;
 using Newtonsoft.Json.Linq;
+using ServerSightAPI.Models.Server;
+using ThreadState = System.Threading.ThreadState;
 
 namespace ServerSightPostScript.Resources
 {
     public class CpuResource: IResource
     {
-        private List<object> _pastMinuteCpuUsage = new List<object>();
+        private static List<double> _pastMinuteCpuUsage = new List<double>();
         public CpuResource()
         {
-            new Thread( () => 
+            var cpuInterval = new Timer();
+            cpuInterval.Elapsed += AddedCpuUsage;
+            cpuInterval.Interval = 1000;
+            cpuInterval.Enabled = true;
+        }
+        
+        private static void AddedCpuUsage(Object source, ElapsedEventArgs e)
+        {
+            try
             {
-                var cpuInterval = new Timer(_ =>
-                {
-                    try
-                    {
-                        var currentCpuUsage = GetCurrentCpuUsage();
-                        _pastMinuteCpuUsage.Add(currentCpuUsage);
-                    }
-                    catch (Exception ignored)
-                    {
-                        Console.WriteLine(ignored.StackTrace);
-                    }
-                }, null, 0, 1000);
-            }).Start();
+                var currentCpuUsage = GetCurrentCpuUsage();
+                Console.WriteLine($"Added usage {currentCpuUsage}");
+                Console.WriteLine(DateTime.Now);
+                _pastMinuteCpuUsage.Add(currentCpuUsage);
+            }
+            catch (Exception ignored)
+            {
+                // TODO replace with logger or something
+                Console.WriteLine(ignored.StackTrace);
+            }
         }
         
         public object GetResource()
         {
-            var pastMinuteUsage = _pastMinuteCpuUsage;
-            
+            var pastMinuteUsage = new List<double>(_pastMinuteCpuUsage);
             _pastMinuteCpuUsage.Clear();
-            return pastMinuteUsage ;
+
+            return new CpuUsage(pastMinuteUsage.Average());
         }
 
-        private double GetCurrentCpuUsage()
+        private static double GetCurrentCpuUsage()
         {
-            // TODO documente installment of mpstat sudo apt install sysstat
+            // TODO document installment of mpstat sudo apt install sysstat
             // requires mpstat
             // uses interval of 1 because else it will not fetch the right usage
             var escapedArgs = "mpstat -P ALL 1 1 -o JSON".Replace("\"", "\\\"");
