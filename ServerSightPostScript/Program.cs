@@ -35,21 +35,26 @@ namespace ServerSightPostScript
                 return;
             }
             
-            var startTimeSpan = TimeSpan.Zero;
-            var periodTimeSpan = TimeSpan.FromMinutes(1);
-
-            var timer = new System.Threading.Timer((e) =>
+            // interval every minute and exactly starts at the minute.
+            var timer = new System.Threading.Timer(async (e) =>
             {
-                Console.WriteLine(DateTime.Now);
-                foreach (var resource in resources)
+                try
                 {
-                    Console.WriteLine(resource.GetResource());
-                    // TODO put in a job that does it every minute
-                    // PostResults(
-                    //         string.Concat("servers/", SERVER_ID, "/", resource.GetRelativeEndpoint()),
-                    //     resource.GetResource()
-                    // ).Wait();
-                    // Console.WriteLine("Done!");
+                    Console.WriteLine($"Posted new results at {DateTime.Now}");
+                    foreach (var resource in resources)
+                    {
+                        // cpu and ram resource use post method
+                        await PostResults(
+                            string.Concat("servers/", SERVER_ID, "/", resource.GetRelativeEndpoint()),
+                            ReferenceEquals(typeof(CpuResource), resource.GetType()) ? HttpMethod.Post : HttpMethod.Put,
+                            resource.GetResource() 
+                        );
+                    }
+                }
+                catch(Exception exception)
+                {
+                    // TODO setup a logger of some sort
+                    Console.WriteLine(exception.StackTrace);
                 }
             }, null, GetStartTime(), 60000);
             while (true) 
@@ -58,7 +63,7 @@ namespace ServerSightPostScript
             }
         }
 
-        public static async Task PostResults(string endpoint, object data)
+        public static async Task PostResults(string endpoint, HttpMethod httpMethod, object data)
         {
             // for untrusted certificates (like development)
             var handler = new HttpClientHandler();
@@ -72,17 +77,21 @@ namespace ServerSightPostScript
             var client = new HttpClient(handler);
             client.DefaultRequestHeaders.Add("X-Api-Key", API_KEY);
             client.BaseAddress = new Uri(BASE_URL);
-
-            var result = await client.PutAsync(endpoint, new StringContent(
+            
+            var request = new HttpRequestMessage(httpMethod, endpoint)
+            {
+                Content = new StringContent(
                     JsonSerializer.Serialize(data),
                     Encoding.UTF8,
                     "application/json"
                 )
-            );
+            };
 
-            if (result.StatusCode != HttpStatusCode.NoContent)
+            var result = await client.SendAsync(request);
+            if ( result.StatusCode != HttpStatusCode.OK && result.StatusCode != HttpStatusCode.NoContent)
             {
-                throw new Exception("Data not saved");
+                // TODO use logger of some sorts
+                Console.WriteLine($"Http request failed for {endpoint}, {httpMethod} {data}");
             }
         }
 
