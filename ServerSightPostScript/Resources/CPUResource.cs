@@ -29,8 +29,6 @@ namespace ServerSightPostScript.Resources
             try
             {
                 var currentCpuUsage = GetCurrentCpuUsage();
-                Console.WriteLine($"Added usage {currentCpuUsage}");
-                Console.WriteLine(DateTime.Now);
                 _pastMinuteCpuUsage.Add(currentCpuUsage);
             }
             catch (Exception ignored)
