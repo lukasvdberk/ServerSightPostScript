@@ -24,6 +24,7 @@ namespace ServerSightPostScript
             List<IResource> resources = new List<IResource>()
             {
                 new CpuResource(),
+                new RamResource(),
                 new HardDiskResource(),
                 new NetworkAdapterResource(),
                 new PortResource(),
@@ -44,9 +45,13 @@ namespace ServerSightPostScript
                     foreach (var resource in resources)
                     {
                         // cpu and ram resource use post method
+                        var httpMethod = ReferenceEquals(typeof(CpuResource), resource.GetType()) || 
+                                         ReferenceEquals(typeof(RamResource), resource.GetType())
+                            ? HttpMethod.Post
+                            : HttpMethod.Put;
                         await PostResults(
                             string.Concat("servers/", SERVER_ID, "/", resource.GetRelativeEndpoint()),
-                            ReferenceEquals(typeof(CpuResource), resource.GetType()) ? HttpMethod.Post : HttpMethod.Put,
+                            httpMethod,
                             resource.GetResource() 
                         );
                     }
