@@ -21,10 +21,12 @@ namespace ServerSightPostScript
         
         static void Main(string[] args)
         {
+            new NetworkUsageResource().GetResource();
             List<IResource> resources = new List<IResource>()
             {
                 new CpuResource(),
                 new RamResource(),
+                new NetworkAdapterResource(),
                 new HardDiskResource(),
                 new NetworkAdapterResource(),
                 new PortResource(),
