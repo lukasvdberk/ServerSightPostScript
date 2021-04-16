@@ -7,6 +7,7 @@ using System.Net.NetworkInformation;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using ServerSightAPI.Models.Server;
 using ServerSightPostScript.Resources;
 
 namespace ServerSightPostScript
@@ -26,7 +27,7 @@ namespace ServerSightPostScript
             {
                 new CpuResource(),
                 new RamResource(),
-                new NetworkAdapterResource(),
+                new NetworkUsageResource(),
                 new HardDiskResource(),
                 new NetworkAdapterResource(),
                 new PortResource(),
@@ -46,8 +47,9 @@ namespace ServerSightPostScript
                     Console.WriteLine($"Posted new results at {DateTime.Now}");
                     foreach (var resource in resources)
                     {
-                        // cpu and ram resource use post method
+                        // cpu, networkusage and ram resource use post method
                         var httpMethod = ReferenceEquals(typeof(CpuResource), resource.GetType()) || 
+                                         ReferenceEquals(typeof(NetworkUsageResource), resource.GetType()) || 
                                          ReferenceEquals(typeof(RamResource), resource.GetType())
                             ? HttpMethod.Post
                             : HttpMethod.Put;
