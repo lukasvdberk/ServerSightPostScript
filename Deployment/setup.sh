@@ -29,7 +29,3 @@ echo 'Written to /var/lib/serversight/.env'
 
 sudo systemctl enable serversight-post.service
 sudo systemctl start serversight-post.service
-
-# TODO download release of binary file
-# TODO get systemd file
-# TODO copy binary file

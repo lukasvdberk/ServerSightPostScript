@@ -102,7 +102,7 @@ namespace ServerSightPostScript
             if ( result.StatusCode != HttpStatusCode.OK && result.StatusCode != HttpStatusCode.NoContent)
             {
                 // TODO use logger of some sorts
-                Console.WriteLine($"Http request failed for {endpoint}, {httpMethod} {data}");
+                Console.WriteLine($"Http request failed for {endpoint} {httpMethod} {data} api key {API_KEY} server id {SERVER_ID} content {result.Content}");
             }
         }
 
