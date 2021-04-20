@@ -14,4 +14,8 @@ Then you can run in the root folder of the project.
 dotnet run
 ```
 
-
+If you want to make a new release run
+```bash
+chmod +x Deployment/make-release.sh
+./Deployment/make-release.sh
+```
