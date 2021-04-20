@@ -4,7 +4,7 @@ This script will post statistics/information about your server to the server sig
 ### Use for your server
 If you have a debian based system you can run the following script follow the following steps.
 
--  Go to the releases and execute the setup.sh from the latest release.
+-  Go to releases and execute the setup.sh from the latest release.
 
 ### Development 
 Make sure you have the lastest version of dotnet installed
