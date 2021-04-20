@@ -20,7 +20,7 @@ namespace ServerSightPostScript
         private static readonly string API_KEY = Configuration.GetApiKey();
         
         // TODO change back to main host url
-        static readonly string BASE_URL = "https://fde481cbb06d.ngrok.io/api/";
+        static readonly string BASE_URL = "https://serversight.lukas.sh/api/";
         
         static void Main(string[] args)
         {
