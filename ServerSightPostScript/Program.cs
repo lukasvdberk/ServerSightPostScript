@@ -6,6 +6,7 @@ using System.Net.Http.Json;
 using System.Net.NetworkInformation;
 using System.Text;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using ServerSightAPI.Models.Server;
 using ServerSightPostScript.Resources;
@@ -18,7 +19,8 @@ namespace ServerSightPostScript
         private static readonly string SERVER_ID = Configuration.GetServerId();
         private static readonly string API_KEY = Configuration.GetApiKey();
         
-        static readonly string BASE_URL = "https://127.0.0.1:5001/api/";
+        // TODO change back to main host url
+        static readonly string BASE_URL = "https://fde481cbb06d.ngrok.io/api/";
         
         static void Main(string[] args)
         {
@@ -66,9 +68,9 @@ namespace ServerSightPostScript
                     Console.WriteLine(exception.StackTrace);
                 }
             }, null, GetStartTime(), 60000);
-            while (true) 
+            while (true)
             {
-                // to keep the program running
+                Thread.Sleep(60000);
             }
         }
 

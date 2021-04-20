@@ -2,29 +2,22 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 using System.Timers;
 using Newtonsoft.Json.Linq;
 using ServerSightAPI.Models.Server;
-using ThreadState = System.Threading.ThreadState;
 
 namespace ServerSightPostScript.Resources
 {
     public class CpuResource: IResource
     {
+        private Timer cpuInterval;
         private static List<double> _pastMinuteCpuUsage = new List<double>();
         public CpuResource()
         {
-            var cpuInterval = new Timer();
-            cpuInterval.Elapsed += AddedCpuUsage;
-            cpuInterval.Interval = 1000;
-            cpuInterval.Enabled = true;
+            InitializeCPUUsage();
         }
-        
-        private static void AddedCpuUsage(Object source, ElapsedEventArgs e)
+
+        private void AddedCpuUsage(object sender, ElapsedEventArgs e)
         {
             try
             {
@@ -33,22 +26,27 @@ namespace ServerSightPostScript.Resources
             }
             catch (Exception ignored)
             {
-                // TODO replace with logger or something
                 Console.WriteLine(ignored.StackTrace);
             }
         }
-        
+
+        private void InitializeCPUUsage()
+        {
+            cpuInterval = new Timer();
+            cpuInterval.Elapsed += AddedCpuUsage;
+            cpuInterval.Interval = 1000;
+            cpuInterval.Enabled = true;
+        }
         public object GetResource()
         {
             var pastMinuteUsage = new List<double>(_pastMinuteCpuUsage);
             _pastMinuteCpuUsage.Clear();
-
             return new CpuUsage(pastMinuteUsage.Average());
         }
 
+
         private static double GetCurrentCpuUsage()
         {
-            // TODO document installment of mpstat sudo apt install sysstat
             // requires mpstat
             // uses interval of 1 because else it will not fetch the right usage
             var escapedArgs = "mpstat -P ALL 1 1 -o JSON".Replace("\"", "\\\"");
@@ -62,15 +60,19 @@ namespace ServerSightPostScript.Resources
                     RedirectStandardOutput = true,
                     UseShellExecute = false,
                     CreateNoWindow = true,
-                }
+                },
             };
             process.Start();
-            string result = process.StandardOutput.ReadToEnd();
             process.WaitForExit();
+            string result = process.StandardOutput.ReadToEnd();
+        
+            process.StandardOutput.Close();
+            process.Kill();
+        
             var mpStatResultJObject = JObject.Parse(result);
             // mpStatResultJObject.SelectToken("$.sysstat.hosts[0].statistics.cpu-load.usr");
             var hosts = mpStatResultJObject.SelectToken("$.sysstat.hosts").Value<JArray>().ToList();
-
+        
             var cpuUsages = new List<double>();
             foreach (var host in hosts)
             {

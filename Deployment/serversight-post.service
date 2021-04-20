@@ -4,7 +4,7 @@ Description=Server sight post script for gathering server data.
 [Service]
 Type=simple
 EnvironmentFile=/var/lib/serversight/.env
-ExecStart=/bin/bash /var/lib/serversight/serversight-post-script
+ExecStart=/var/lib/serversight/ServerSightPostScript
 
 [Install]
 WantedBy=multi-user.target
