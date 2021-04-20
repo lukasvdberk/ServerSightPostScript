@@ -4,10 +4,12 @@ sudo mkdir -p /var/lib/serversight/ || true
 sudo apt update
 sudo apt install sysstat || true
 
+# getting latest versoin
+releaseversion=$( curl -s https://api.github.com/repos/lukasvdberk/ServerSightPostScript/releases/latest | grep browser_download_url | cut -d '"' -f 4 | cut -d'/' -f8- | curl -s https://api.github.com/repos/lukasvdberk/ServerSightPostScript/releases/latest | grep browser_download_url | cut -d '"' -f 4 | cut -d'/' -f8- | cut -f1 -d"/" | head -n 1)
 sudo touch /var/lib/serversight/serversight-post-script
 sudo chmod 777 /var/lib/serversight/serversight-post-script
-sudo wget -c https://github.com/lukasvdberk/ServerSightPostScript/releases/download/0.1/ServerSightPostScript -P /var/lib/serversight/
-sudo wget -c https://github.com/lukasvdberk/ServerSightPostScript/releases/download/0.1/serversight-post.service -P /etc/systemd/system/
+sudo wget -c https://github.com/lukasvdberk/ServerSightPostScript/releases/download/${releaseversion}/ServerSightPostScript -P /var/lib/serversight/
+sudo wget -c https://github.com/lukasvdberk/ServerSightPostScript/releases/download/${releaseversion}/serversight-post.service -P /etc/systemd/system/
 sudo chmod 644 /etc/systemd/system/serversight-post.service
 
 sudo chmod 777 /var/lib/serversight/ServerSightPostScript
