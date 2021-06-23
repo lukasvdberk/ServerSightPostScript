@@ -5,6 +5,7 @@ This script will post statistics/information about your server to the server sig
 If you have a debian based system you can run the following script follow the following steps.
 
 -  Go to releases and execute the setup.sh from the latest release.
+-  Or use this simple one liner `sh <(curl -LJ https://github.com/lukasvdberk/ServerSightPostScript/releases/download/1.0/setup.sh) -y`
 
 ### Development 
 Make sure you have the lastest version of dotnet installed
