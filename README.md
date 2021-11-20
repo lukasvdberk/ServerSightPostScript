@@ -1,6 +1,14 @@
 # Server sight post script
 This script will post statistics/information about your server to the server sight api.
 
+For the other repositories that belong to this collection of repos:
+
+- https://github.com/lukasvdberk/ServerSightFrontend
+- https://github.com/lukasvdberk/ServerSightAPI
+
+Currently runs at [this](https://serversight.lukas.sh) url.
+
+
 ### Use for your server
 If you have a debian based system you can run the following script follow the following steps.
 
